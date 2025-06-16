@@ -1,7 +1,9 @@
 FROM php:8.3-apache-bookworm
 
-ENV OHRM_VERSION 5.7
-ENV OHRM_MD5 5bd924a546e29e06c34eec73b014d139
+
+ENV OHRM_VERSION=5.7
+ENV OHRM_MD5=5bd924a546e29e06c34eec73b014d139
+
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -29,6 +31,7 @@ RUN set -ex; \
 	chmod -R 775 html/src/cache html/src/log html/src/config; \
 	\
 	docker-php-ext-configure gd --with-freetype --with-jpeg; \
+	docker-php-ext-install pdo_mysql; \
 	docker-php-ext-configure ldap \
 	    --with-libdir=lib/$(uname -m)-linux-gnu/ \
 	; \
@@ -68,5 +71,8 @@ RUN { \
 	if command -v a2enmod; then \
 		a2enmod rewrite; \
 	fi;
+
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername
 
 VOLUME ["/var/www/html"]
